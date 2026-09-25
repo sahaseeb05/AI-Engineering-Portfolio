@@ -1,0 +1,7 @@
+streamlit>=1.37
+faster-whisper>=1.1
+pyaudio>=0.2.14
+duckduckgo-search>=6.3
+ollama>=0.4
+numpy>=1.26
+python-dotenv>=1.0
