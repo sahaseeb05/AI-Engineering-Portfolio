@@ -1,0 +1,7 @@
+opencv-python>=4.8
+mediapipe>=0.10.14
+pyautogui>=0.9.54
+numpy>=1.24
+# Optional (Windows): absolute system-volume control. Without it, volume uses media keys.
+pycaw>=20240316; sys_platform == "win32"
+comtypes>=1.2; sys_platform == "win32"
