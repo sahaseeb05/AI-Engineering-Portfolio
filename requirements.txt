@@ -1,0 +1,13 @@
+torch
+torchaudio
+torchvision
+librosa
+soundfile
+pyaudio
+opencv-python
+pillow
+streamlit
+matplotlib
+numpy
+reportlab
+requests
