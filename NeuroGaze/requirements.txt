@@ -1,0 +1,11 @@
+# Computer vision
+opencv-python>=4.8
+mediapipe>=0.10.9        # legacy Face Mesh (<0.10.30) or Tasks FaceLandmarker (newer) both supported
+numpy>=1.24
+
+# OS input injection + global hotkeys
+pyautogui>=0.9.54
+pynput>=1.7.6
+
+# GUI image conversion (Tkinter itself ships with Python)
+pillow>=10.0
