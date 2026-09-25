@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Honeypot Console</title>
+  <style>
+    :root {
+      --bg: #F8F9FA;
+      --surface: #FFFFFF;
+      --border: #CED4DA;
+      --border-subtle: #E9ECEF;
+      --text: #212529;
+      --text-muted: #6C757D;
+      --nav-bg: #232F3E;
+      --nav-text: #FFFFFF;
+      --accent: #0D6EFD;
+      --ok: #198754;
+      --ok-bg: #D1E7DD;
+      --warn: #B02A37;
+      --warn-bg: #F8D7DA;
+      --font-ui: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Cascadia Mono", Consolas, "Roboto Mono", Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ---------- Navbar ---------- */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      padding: 0 24px;
+      background: var(--nav-bg);
+      color: var(--nav-text);
+      border-bottom: 1px solid #111820;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.2px;
+    }
+    .brand-mark {
+      width: 22px;
+      height: 22px;
+      border: 1px solid #8A9BB0;
+      border-radius: 3px;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .brand .sub { color: #AAB7C4; font-weight: 400; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 10px;
+      border: 1px solid var(--ok);
+      border-radius: 3px;
+      background: var(--ok-bg);
+      color: var(--ok);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+    }
+    .status.offline {
+      border-color: var(--warn);
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+    .status.offline .dot { background: var(--warn); }
+
+    /* ---------- Layout ---------- */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .page-header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .breadcrumb { color: var(--text-muted); font-size: 12px; margin-bottom: 2px; }
+    .refresh-info { color: var(--text-muted); font-size: 12px; }
+
+    /* ---------- Metric cards ---------- */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .metric { padding: 16px 18px; }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .metric-value {
+      margin-top: 6px;
+      font-size: 26px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+    .metric-value.mono {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      padding-top: 5px;
+    }
+    .metric-foot { margin-top: 4px; color: var(--text-muted); font-size: 12px; }
+
+    /* ---------- Table panel ---------- */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-header h2 { margin: 0; font-size: 15px; font-weight: 600; }
+    .panel-header .count { color: var(--text-muted); font-size: 12px; }
+
+    .filter {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      padding: 5px 10px;
+      width: 240px;
+      max-width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    .filter:focus { outline: 2px solid #9EC5FE; outline-offset: -1px; border-color: var(--accent); }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #F1F3F5;
+      color: #495057;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 9px 18px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 8px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+      max-width: 360px;
+      overflow-wrap: anywhere;
+    }
+    tbody tr:hover { background: #F8F9FA; }
+    tbody tr.new { background: #FFF8E1; }
+    td.ip { color: var(--accent); white-space: nowrap; }
+    td.ts { color: var(--text-muted); white-space: nowrap; }
+    .empty {
+      padding: 40px 18px;
+      text-align: center;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+    }
+
+    @media (max-width: 640px) {
+      .navbar, main { padding-left: 16px; padding-right: 16px; }
+      .brand .sub { display: none; }
+      .panel-header { flex-direction: column; align-items: stretch; gap: 8px; }
+      .filter { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="brand">
+      <span class="brand-mark">HP</span>
+      <span>Honeypot Console <span class="sub">/ SSH Decoy</span></span>
+    </div>
+    <span id="status" class="status"><span class="dot"></span><span id="status-text">Active</span></span>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">Monitoring › Decoy SSH (port 2222)</div>
+        <h1>Threat Overview</h1>
+      </div>
+      <div class="refresh-info">Auto-refresh every 5s · Last updated: <span id="updated">—</span></div>
+    </div>
+
+    <section class="metrics">
+      <div class="card metric">
+        <div class="metric-label">Total Attempts</div>
+        <div class="metric-value" id="m-total">0</div>
+        <div class="metric-foot">All recorded login attempts</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-label">Last Source IP</div>
+        <div class="metric-value mono" id="m-last-ip">—</div>
+        <div class="metric-foot" id="m-last-seen">No activity yet</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-label">Unique Source IPs</div>
+        <div class="metric-value" id="m-unique">0</div>
+        <div class="metric-foot">Distinct attacking hosts</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="panel-header">
+        <div>
+          <h2>Recent Connection Attempts</h2>
+          <div class="count" id="row-count">Showing 0 records</div>
+        </div>
+        <input id="filter" class="filter" type="search" placeholder="Filter by IP, username, password…" aria-label="Filter records">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp (UTC)</th>
+              <th>Source IP</th>
+              <th>Username</th>
+              <th>Password</th>
+            </tr>
+          </thead>
+          <tbody id="log-body">
+            <tr><td colspan="4" class="empty">Waiting for data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const REFRESH_MS = 5000;
+    const els = {
+      status: document.getElementById("status"),
+      statusText: document.getElementById("status-text"),
+      updated: document.getElementById("updated"),
+      total: document.getElementById("m-total"),
+      lastIp: document.getElementById("m-last-ip"),
+      lastSeen: document.getElementById("m-last-seen"),
+      unique: document.getElementById("m-unique"),
+      body: document.getElementById("log-body"),
+      rowCount: document.getElementById("row-count"),
+      filter: document.getElementById("filter"),
+    };
+
+    let logs = [];
+    let seenKeys = null; // keys from the previous poll, used to highlight new rows
+    let loaded = false;
+
+    const keyOf = (r) => `${r.timestamp}|${r.source_ip}|${r.username}|${r.password}`;
+
+    function formatTs(ts) {
+      if (!ts) return "";
+      return ts.replace("T", " ").replace("+00:00", "");
+    }
+
+    // NOTE: every attacker-supplied value is inserted with textContent, never innerHTML.
+    function cell(text, cls) {
+      const td = document.createElement("td");
+      if (cls) td.className = cls;
+      td.textContent = text;
+      return td;
+    }
+
+    function emptyRow(message) {
+      const tr = document.createElement("tr");
+      const td = cell(message, "empty");
+      td.colSpan = 4;
+      tr.appendChild(td);
+      return tr;
+    }
+
+    function renderTable() {
+      const q = els.filter.value.trim().toLowerCase();
+      const rows = q
+        ? logs.filter(r => [r.source_ip, r.username, r.password, r.timestamp]
+            .some(v => (v || "").toLowerCase().includes(q)))
+        : logs;
+
+      const frag = document.createDocumentFragment();
+      if (rows.length === 0) {
+        frag.appendChild(emptyRow(logs.length ? "No records match the current filter." : "No connection attempts recorded yet."));
+      } else {
+        for (const r of rows) {
+          const tr = document.createElement("tr");
+          if (seenKeys && !seenKeys.has(keyOf(r))) tr.className = "new";
+          tr.appendChild(cell(formatTs(r.timestamp), "ts"));
+          tr.appendChild(cell(r.source_ip, "ip"));
+          tr.appendChild(cell(r.username));
+          tr.appendChild(cell(r.password));
+          frag.appendChild(tr);
+        }
+      }
+      els.body.replaceChildren(frag);
+      els.rowCount.textContent = `Showing ${rows.length} of ${logs.length} most recent records`;
+    }
+
+    function setStatus(online) {
+      els.status.classList.toggle("offline", !online);
+      els.statusText.textContent = online ? "Active" : "Unreachable";
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch("/api/logs?limit=200", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        els.total.textContent = data.total_attempts.toLocaleString();
+        els.unique.textContent = data.unique_ips.toLocaleString();
+        els.lastIp.textContent = data.last_source_ip || "—";
+        els.lastSeen.textContent = data.last_seen ? `Seen ${formatTs(data.last_seen)} UTC` : "No activity yet";
+
+        seenKeys = loaded ? new Set(logs.map(keyOf)) : null;
+        loaded = true;
+        logs = data.logs;
+        renderTable();
+
+        els.updated.textContent = new Date().toLocaleTimeString();
+        setStatus(true);
+      } catch (err) {
+        console.error("Failed to fetch logs:", err);
+        setStatus(false);
+      }
+    }
+
+    els.filter.addEventListener("input", renderTable);
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+name: honeypot
+
+services:
+  decoy_ssh:
+    build: ./decoy_ssh
+    container_name: decoy_ssh
+    restart: unless-stopped
+    ports:
+      - "2222:2222"
+    volumes:
+      - shared-logs:/data
+    environment:
+      - LOG_FILE=/data/attacks.log
+      - HOST_KEY_FILE=/data/ssh_host_rsa_key
+      - LISTEN_PORT=2222
+
+  dashboard:
+    build: ./dashboard
+    container_name: honeypot_dashboard
+    restart: unless-stopped
+    depends_on:
+      - decoy_ssh
+    ports:
+      - "5000:5000"
+    volumes:
+      # Read-only: the dashboard only ever consumes the attack log.
+      - shared-logs:/data:ro
+    environment:
+      - LOG_FILE=/data/attacks.log
+
+volumes:
+  shared-logs:
