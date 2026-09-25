@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fuzzy Medical AI clinical risk assessment workbench">
+  <title>Fuzzy Medical AI | Clinical Workbench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">FM</span><span>Fuzzy Medical AI</span></div>
+    <div class="topbar-meta"><span class="status-dot"></span><span id="system-status">MODEL SERVICE READY</span><span class="topbar-divider"></span><span class="mono">v1.0.0 / LIVE</span></div>
+  </header>
+
+  <main class="shell">
+    <section class="intro-row">
+      <div>
+        <p class="eyebrow">Clinical engineering workbench / 01</p>
+        <h1>Health risk assessment</h1>
+        <p class="lede">A transparent neuro-fuzzy readout for point-in-time telemetry.</p>
+      </div>
+      <div class="protocol-note"><span class="note-label">PROTOCOL</span><span>ANFIS-R / 5 SIGNALS</span><span class="note-label">OUTPUT</span><span>0-100 RISK INDEX</span></div>
+    </section>
+
+    <div class="workspace-grid">
+      <section class="panel input-panel" aria-labelledby="input-heading">
+        <div class="panel-header"><div><p class="eyebrow">Telemetry input</p><h2 id="input-heading">Patient profile</h2></div><span class="panel-index">A01</span></div>
+        <form id="patient-form">
+          <div class="field-list">
+            <label class="metric-field"><span class="field-copy"><span class="field-name">Age</span><span class="field-unit">years</span></span><input name="age" type="number" value="54" min="18" max="100" step="1" required></label>
+            <label class="metric-field"><span class="field-copy"><span class="field-name">Blood pressure</span><span class="field-unit">mmHg / systolic</span></span><input name="blood_pressure" type="number" value="128" min="80" max="200" step="1" required></label>
+            <label class="metric-field"><span class="field-copy"><span class="field-name">Cholesterol</span><span class="field-unit">mg/dL</span></span><input name="cholesterol" type="number" value="214" min="100" max="360" step="1" required></label>
+            <label class="metric-field"><span class="field-copy"><span class="field-name">Blood sugar</span><span class="field-unit">mg/dL / fasting</span></span><input name="blood_sugar" type="number" value="112" min="55" max="300" step="1" required></label>
+            <label class="metric-field"><span class="field-copy"><span class="field-name">Heart rate</span><span class="field-unit">bpm / resting</span></span><input name="heart_rate" type="number" value="78" min="40" max="150" step="1" required></label>
+          </div>
+          <div class="form-footer"><span class="validation-copy" id="validation-copy">All fields within operating range</span><button type="submit" class="primary-button">Run assessment <span>↗</span></button></div>
+        </form>
+        <div class="disclaimer"><span class="note-label">CLINICAL NOTE</span><p>This decision-support output is an analytical estimate, not a diagnosis. Review with a qualified clinician.</p></div>
+      </section>
+
+      <section class="panel assessment-panel" aria-labelledby="assessment-heading">
+        <div class="panel-header"><div><p class="eyebrow">Model output</p><h2 id="assessment-heading">Risk assessment</h2></div><span class="panel-index">B01</span></div>
+        <div class="assessment-main">
+          <div class="gauge-wrap">
+            <svg class="gauge" viewBox="0 0 220 220" role="img" aria-label="Overall risk gauge"><circle class="gauge-track" cx="110" cy="110" r="84"></circle><circle id="gauge-progress" class="gauge-progress" cx="110" cy="110" r="84"></circle></svg>
+            <div class="gauge-value"><strong id="risk-score">--</strong><span>OVERALL RISK</span></div>
+          </div>
+          <div class="score-summary"><span class="risk-badge" id="risk-category">Awaiting input</span><p id="score-summary">Enter current patient telemetry to generate a risk estimate and an interpretable fuzzy readout.</p><div class="model-stat"><span>LEARNED MODEL</span><strong id="model-score">--</strong></div><div class="model-stat"><span>FUZZY INFERENCE</span><strong id="fuzzy-score">--</strong></div></div>
+        </div>
+        <div class="save-record-card" id="save-record-card" aria-live="polite">
+          <div><p class="eyebrow">Record workflow</p><h3>Save this assessment</h3><p>Store the current telemetry and verified risk score for future model learning.</p></div>
+          <button type="button" class="save-button" id="save-record-button" disabled>Save &amp; Verify Record <span>+</span></button>
+        </div>
+        <div class="save-banner" id="save-banner" role="status">Record successfully saved to database!</div>
+        <div class="section-rule"></div>
+        <div class="panel-subheader"><h3>Fuzzy membership profile</h3><span class="mono">LOW / MODERATE / HIGH</span></div>
+        <div id="membership-list" class="membership-list"><div class="empty-state">Membership vectors will appear after assessment.</div></div>
+      </section>
+    </div>
+
+    <section class="panel factors-panel" aria-labelledby="factors-heading">
+      <div class="panel-header"><div><p class="eyebrow">Attribution layer</p><h2 id="factors-heading">Contributing factors</h2></div><span class="panel-index">C01</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Signal</th><th>Observed value</th><th>Dominant state</th><th>Membership strength</th><th>Relative contribution</th></tr></thead><tbody id="factors-body"><tr><td colspan="5" class="empty-state">Run an assessment to populate the attribution table.</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <footer><span>FUZZY MEDICAL AI</span><span>Decision support system / synthetic evaluation environment</span><span class="mono">UTC <span id="clock">--:--:--</span></span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
